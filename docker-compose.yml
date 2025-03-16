@@ -51,22 +51,6 @@ services:
     networks:
       - app-network
 
-  # Varnish for HTTP caching
-  varnish:
-    image: varnish:stable
-    restart: always
-    ports:
-      - "0.0.0.0:80:80"  # Expose on all network interfaces
-    volumes:
-      - ./varnish:/etc/varnish
-    environment:
-      - VARNISH_SIZE=512M
-    depends_on:
-      - payload
-    networks:
-      - app-network
-    command: "-p default_ttl=3600 -p default_grace=3600"
-
   # Redis Commander - Web UI for Redis monitoring
   redis-commander:
     image: rediscommander/redis-commander:latest
@@ -82,73 +66,6 @@ services:
     networks:
       - app-network
 
-  # Prometheus for metrics collection
-  prometheus:
-    image: prom/prometheus:latest
-    restart: always
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
-    networks:
-      - app-network
-
-  # Grafana for visualization
-  grafana:
-    image: grafana/grafana:latest
-    restart: always
-    ports:
-      - "3001:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-      - GF_USERS_ALLOW_SIGN_UP=false
-    depends_on:
-      - prometheus
-    networks:
-      - app-network
-
-  # Varnish Exporter for Prometheus - Working image
-  varnish-exporter:
-    image: cdrocker/varnish-prometheus-exporter
-    restart: always
-    ports:
-      - "9131:9131"
-    # Use host networking to access varnishstat on the host
-    # This is needed because varnishstat might not be available inside the container
-    network_mode: "host"
-    environment:
-      - VARNISH_HOST=localhost
-      - VARNISH_PORT=6082
-    # Or alternatively mount the varnish socket to allow direct access
-    volumes:
-      - /var/run/varnish:/var/run/varnish
-    command: -no-exit
-
-
-  # Redis Exporter for Prometheus
-  redis-exporter:
-    image: oliver006/redis_exporter:latest
-    restart: always
-    ports:
-      - "9121:9121"
-    environment:
-      - REDIS_ADDR=redis://redis:6379
-    depends_on:
-      - redis
-    networks:
-      - app-network
-
 networks:
   app-network:
     driver: bridge
@@ -157,5 +74,3 @@ volumes:
   pgdata:
   node_modules:
   redis_data:
-  prometheus_data:
-  grafana_data:

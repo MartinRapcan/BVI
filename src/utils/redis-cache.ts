@@ -9,7 +9,10 @@ let redisClient: Redis | null = null;
 const getRedisClient = (): Redis | null => {
   if (redisClient) return redisClient;
   
-  const REDIS_URL = process.env.REDIS_URL || 'redis://redis:6379';
+  // Update this to use localhost since your app is outside Docker
+  // but Redis is inside Docker
+  const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+  console.log(`Attempting to connect to Redis at: ${REDIS_URL}`);
   
   try {
     redisClient = new Redis(REDIS_URL, {
@@ -18,6 +21,8 @@ const getRedisClient = (): Redis | null => {
         console.log(`Redis reconnecting in ${delay}ms...`);
         return delay;
       },
+      // Set a connection timeout
+      connectTimeout: 10000,
     });
     
     redisClient.on('error', (err: Error) => {
@@ -25,7 +30,7 @@ const getRedisClient = (): Redis | null => {
     });
     
     redisClient.on('connect', () => {
-      console.log('Connected to Redis');
+      console.log('Connected to Redis successfully');
     });
     
     return redisClient;
@@ -53,6 +58,7 @@ export const getCache = async <T>(key: string): Promise<T | null> => {
 export const setCache = async <T>(key: string, data: T, expiryInSeconds = 300): Promise<boolean> => {
   try {
     const client = getRedisClient();
+    console.log('client', client);
     if (!client) return false;
     
     await client.set(key, JSON.stringify(data), 'EX', expiryInSeconds);
@@ -81,6 +87,7 @@ export const deleteCache = async (key: string): Promise<boolean> => {
 export const deleteCacheByPattern = async (pattern: string): Promise<boolean> => {
   try {
     const client = getRedisClient();
+    console.log('client', client);
     if (!client) return false;
     
     const keys = await client.keys(pattern);
