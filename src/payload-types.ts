@@ -66,18 +66,18 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    blogs: Blog;
-    media: Media;
     users: User;
+    media: Media;
+    blogs: Blog;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
-    blogs: BlogsSelect<false> | BlogsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    blogs: BlogsSelect<false> | BlogsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -113,20 +113,6 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blogs".
- */
-export interface Blog {
-  id: number;
-  title: string;
-  slug: string;
-  author: number | User;
-  publishedAt?: string | null;
-  featuredImage?: (number | null) | Media;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -166,22 +152,36 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blogs".
+ */
+export interface Blog {
+  id: number;
+  title: string;
+  slug: string;
+  author: number | User;
+  publishedAt?: string | null;
+  featuredImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'blogs';
-        value: number | Blog;
+        relationTo: 'users';
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'blogs';
+        value: number | Blog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -227,16 +227,18 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "blogs_select".
+ * via the `definition` "users_select".
  */
-export interface BlogsSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  author?: T;
-  publishedAt?: T;
-  featuredImage?: T;
+export interface UsersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -258,18 +260,16 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "blogs_select".
  */
-export interface UsersSelect<T extends boolean = true> {
+export interface BlogsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  author?: T;
+  publishedAt?: T;
+  featuredImage?: T;
   updatedAt?: T;
   createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

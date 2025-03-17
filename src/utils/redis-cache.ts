@@ -6,7 +6,7 @@ import type { Request, Response, NextFunction } from 'express';
 let redisClient: Redis | null = null;
 
 // Create Redis client and handle reconnection
-const getRedisClient = (): Redis | null => {
+export const getRedisClient = (): Redis | null => {
   if (redisClient) return redisClient;
   
   // Update this to use localhost since your app is outside Docker
@@ -58,7 +58,6 @@ export const getCache = async <T>(key: string): Promise<T | null> => {
 export const setCache = async <T>(key: string, data: T, expiryInSeconds = 300): Promise<boolean> => {
   try {
     const client = getRedisClient();
-    console.log('client', client);
     if (!client) return false;
     
     await client.set(key, JSON.stringify(data), 'EX', expiryInSeconds);
