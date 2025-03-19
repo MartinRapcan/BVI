@@ -1,0 +1,42 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install necessary packages
+RUN apk add --no-cache libc6-compat
+
+# Install pnpm globally
+RUN npm install -g pnpm@9.0.0
+
+# Copy package files first (for better layer caching)
+COPY package.json pnpm-lock.yaml* ./
+
+# Remove any existing node_modules to avoid Windows/Linux path issues
+RUN rm -rf node_modules
+
+# Clean pnpm store to avoid path issues
+RUN pnpm store prune
+
+# Install dependencies with a clean state
+RUN pnpm install --prefer-offline
+
+# Copy the rest of the application
+COPY . .
+
+# Clean any node_modules from the copy to avoid Windows/Linux path issues
+RUN rm -rf node_modules
+RUN pnpm install --prefer-offline
+
+# Build the application
+RUN pnpm run build
+
+# Set environment variables
+ENV NODE_ENV production
+ENV HOST 0.0.0.0
+ENV PORT 3000
+
+# Expose the port
+EXPOSE 3000
+
+# Start the server
+CMD ["pnpm", "start"]

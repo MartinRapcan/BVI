@@ -2,6 +2,25 @@ version: '3'
 
 services:
   # Your Payload app
+  # payload:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.prod
+  #   restart: always
+  #   ports:
+  #     - '3000:3000'  # Direct access for production
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - NODE_ENV=production
+  #     - HOST=0.0.0.0
+  #     - PAYLOAD_PUBLIC_SERVER_URL=http://0.0.0.0:3000
+  #     - REDIS_URL=redis://redis:6379
+  #   networks:
+  #     - app-network
   payload:
     image: node:20-alpine
     restart: always
@@ -11,7 +30,7 @@ services:
       - .:/home/node/app
       - node_modules:/home/node/app/node_modules
     working_dir: /home/node/app/
-    command: sh -c "corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install && HOST=0.0.0.0 pnpm dev"
+    command: sh -c "corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install && pnpm run build && HOST=0.0.0.0 pnpm start"
     depends_on:
       - postgres
       - redis
@@ -38,7 +57,7 @@ services:
 
   # Varnish as a caching layer in front of Nginx
   varnish:
-    image: varnish:6.0
+    image: varnish:latest
     ports:
       - "8000:80"  # Access Varnish on port 8000
     volumes:

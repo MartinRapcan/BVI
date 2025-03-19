@@ -4,6 +4,8 @@ import { getPayload } from "payload";
 import payloadConfig from "@/payload.config";
 import { getCache, getRedisClient, setCache } from "@/utils/redis-cache";
 
+export const dynamic = 'force-dynamic'; // Make sure this is dynamic
+
 // Rate limit configuration
 const RATE_LIMIT_MAX = 20; // maximum requests
 const RATE_LIMIT_WINDOW = 60; // time window in seconds (1 minute)

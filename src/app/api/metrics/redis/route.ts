@@ -2,6 +2,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { collectRedisMetrics, getActiveIPs, testRedisConnection } from '@/utils/redis-metrics';
 
+export const dynamic = 'force-dynamic'; // Make sure this is dynamic
+
 export async function GET(req: NextRequest) {
   try {
     // First test if we can connect to Redis

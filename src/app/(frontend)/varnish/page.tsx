@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { Server, Layers, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
