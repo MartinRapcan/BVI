@@ -2,7 +2,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  // output: "standalone",
   // Your Next.js config here
   async headers() {
     return [
@@ -12,7 +12,8 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=3600',
+            // value: 'public, max-age=300, s-maxage=3600',
+            value: 'no-store, max-age=0',
           },
         ],
       },
