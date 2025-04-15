@@ -87,7 +87,6 @@ export function middleware(request: NextRequest) {
 
     if (!currentData || now - currentData.timestamp > RATE_LIMIT_WINDOW) {
       ipRequestCounts.set(ip, { count: 1, timestamp: now });
-      console.log(`New request from ${ip}. Count: 1`);
     } else {
       currentData.count += 1;
 
