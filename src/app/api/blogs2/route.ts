@@ -27,11 +27,8 @@ export async function GET(req: NextRequest) {
 		const currentCount = await redis.get(key);
 		const count = currentCount ? Number.parseInt(currentCount) : 0;
 
-		console.log(`Rate limit count for IP ${ip}: ${count}`);
-
 		// Rate limit exceeded
 		if (count >= RATE_LIMIT_MAX) {
-			console.warn(`Rate limit exceeded for IP: ${ip}`);
 			// return NextResponse.json(
 			//   { error: 'Too many requests', code: 'rate_limited' },
 			//   {

@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Blog } from "@/payload-types";
 
+export const dynamic = 'force-dynamic'; // Make sure this is dynamic
+
 function ClientBlog() {
 	// Get the id from the URL using useParams
 	const params = useParams();

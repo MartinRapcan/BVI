@@ -3,14 +3,32 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
+  # Self monitoring
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
 
+  # Nginx exporter
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:80']
+
+  # Varnish exporter
   - job_name: 'varnish'
     static_configs:
       - targets: ['varnish-exporter:9131']
     
+  # Node.js application metrics (if you have metrics endpoint)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['payload:3000']
+
+  # Redis exporter
   - job_name: 'redis'
     static_configs:
       - targets: ['redis-exporter:9121']
+      
+  # System metrics for all containers
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']

@@ -67,7 +67,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 10;
+const MAX_REQUESTS_PER_WINDOW = 20;
 
 const ipRequestCounts = new Map<string, { count: number; timestamp: number }>();
 
@@ -82,8 +82,6 @@ export function middleware(request: NextRequest) {
 
     const now = Date.now();
     const currentData = ipRequestCounts.get(ip);
-
-    console.log(ipRequestCounts, pathname);
 
     if (!currentData || now - currentData.timestamp > RATE_LIMIT_WINDOW) {
       ipRequestCounts.set(ip, { count: 1, timestamp: now });

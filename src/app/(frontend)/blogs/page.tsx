@@ -7,6 +7,8 @@ import Link from "next/link";
 import type { Blog } from "@/payload-types";
 import Image from "next/image";
 
+export const dynamic = 'force-dynamic'; // Make sure this is dynamic
+
 // src/app/(frontend)/blogs/page.tsx
 export default function BlogsPageWrapper() {
 	return <BlogsPage />;
