@@ -56,12 +56,13 @@ services:
   # Varnish as a caching layer in front of Nginx
   varnish:
     image: varnish:latest
+    command: -n varnish  # Add the instance name here
     ports:
-      - "8000:80"  # Access Varnish on port 8000
-      - "6082:6082"  # Varnish admin port
+      - "8000:80"
+      - "6082:6082"
     volumes:
       - ./docker/varnish/default.vcl:/etc/varnish/default.vcl:ro
-    command: -f /etc/varnish/default.vcl -s malloc,256m -T localhost:6082
+      - varnish-vsm:/var/lib/varnish
     depends_on:
       - nginx
     networks:
@@ -115,13 +116,22 @@ services:
       - app-network
 
   varnish-exporter:
-    image: cdrocker/varnish-prometheus-exporter:latest
-    ports:
-      - "9131:9131"
-    environment:
-      - VARNISH_ADDR=varnish:6082
+    image: varnish-stat-exporter
+    command: /tmp/prometheus_varnish_exporter -n varnish -verbose
+    volumes:
+      - varnish-vsm:/var/lib/varnish
     depends_on:
       - varnish
+    ports:
+      - "9131:9131"
+    build:
+      dockerfile_inline: |
+        FROM curlimages/curl
+        RUN set -ex; \
+            cd /tmp/; \
+            curl -L https://github.com/jonnenauha/prometheus_varnish_exporter/releases/download/1.6.1/prometheus_varnish_exporter-1.6.1.linux-amd64.tar.gz | tar xvzf - --strip 1
+        FROM varnish
+        COPY --from=0 /tmp/prometheus_varnish_exporter /tmp/prometheus_varnish_exporter
     networks:
       - app-network
 
@@ -134,3 +144,4 @@ volumes:
   node_modules:
   prometheus_data:
   grafana_data:
+  varnish-vsm: 

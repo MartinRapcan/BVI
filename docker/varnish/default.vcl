@@ -1,21 +1,14 @@
-vcl 4.0;
+vcl 4.1;
 
 backend default {
     .host = "nginx";
     .port = "80";
+    .connect_timeout = 30s;
+    .first_byte_timeout = 60s;
+    .between_bytes_timeout = 5s;
 }
 
 sub vcl_recv {
-    # Skip caching for POST/PUT/DELETE
-    if (req.method != "GET" && req.method != "HEAD") {
-        return (pass);
-    }
-    
-    # Handle websockets
-    if (req.http.Upgrade ~ "(?i)websocket") {
-        return (pipe);
-    }
-    
     # Remove all cookies to force caching
     unset req.http.Cookie;
     unset req.http.Authorization;
@@ -23,8 +16,25 @@ sub vcl_recv {
     # Important: Strip If-None-Match to force 200 responses instead of 304
     unset req.http.If-None-Match;
     unset req.http.If-Modified-Since;
-    
+
     return (hash);
+}
+
+sub vcl_deliver {
+    # Add cache status headers
+    if (obj.hits > 0) {
+        set resp.http.X-Cache = "HIT";
+        set resp.http.X-Cache-Hits = obj.hits;
+    } else {
+        set resp.http.X-Cache = "MISS";
+    }
+    
+    # Add cache-control header if missing
+    if (!resp.http.Cache-Control) {
+        set resp.http.Cache-Control = "public, max-age=300";
+    }
+    
+    return (deliver);
 }
 
 sub vcl_backend_response {
@@ -42,24 +52,4 @@ sub vcl_backend_response {
     }
     
     return (deliver);
-}
-
-sub vcl_deliver {
-    # Debug headers
-    if (obj.hits > 0) {
-        set resp.http.X-Cache = "HIT";
-        set resp.http.X-Cache-Hits = obj.hits;
-    } else {
-        set resp.http.X-Cache = "MISS";
-    }
-    
-    return (deliver);
-}
-
-sub vcl_pipe {
-    # For websockets
-    if (req.http.upgrade) {
-        set bereq.http.upgrade = req.http.upgrade;
-        set bereq.http.connection = req.http.connection;
-    }
 }

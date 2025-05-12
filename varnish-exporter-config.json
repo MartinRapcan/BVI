@@ -1,0 +1,7 @@
+{
+  "ListenAddress": ":9131",
+  "Path": "/metrics",
+  "VarnishDockerContainer": "varnish",
+  "Verbose": false,
+  "ExitOnErrors": false
+}
