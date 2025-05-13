@@ -135,6 +135,28 @@ services:
     networks:
       - app-network
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    command:
+      - -nginx.scrape-uri=http://nginx/nginx_status
+    ports:
+      - "9113:9113"
+    depends_on:
+      - nginx
+    networks:
+      - app-network
+
+  nginx-vts-exporter:
+    image: sophos/nginx-vts-exporter:latest
+    environment:
+      - NGINX_STATUS=http://nginx/status/format/json
+    ports:
+      - "9913:9913"
+    depends_on:
+      - nginx
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
